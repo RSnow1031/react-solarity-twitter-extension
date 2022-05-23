@@ -251,18 +251,13 @@
 }
 
 /*loader spinner*/
-.loading {
-  height: 0;
-  width: 0;
+.preloader-Icon {
   padding: 15px;
   border: 6px solid #ccc;
   border-right-color: #888;
   border-radius: 22px;
   -webkit-animation: rotate 1s infinite linear;
   /* left, top and position just for the demo! */
-  position: absolute;
-  left: 50%;
-  top: 50%;
 }
 
 @-webkit-keyframes rotate {
@@ -660,3 +655,64 @@ input[name="input_amount"] {
   #CURRENCY-USDC,#CURRENCY-VERSE{
     display: none;
   }
+
+  .custom-icon-svg:hover {
+    filter: invert(38%) sepia(79%) saturate(658%) hue-rotate(301deg) brightness(88%) contrast(95%);
+
+  }
+  .toggle-btn{
+    display: none;
+  }
+
+  .trigger{
+      text-align: center;
+    padding: 7px 13px;
+    background: #3e3e3e;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    font-family: cursive;
+}
+
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+}
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem 1.5rem;
+    width: 24rem;
+    border-radius: 0.5rem;
+}
+.close-button {
+    float: right;
+    width: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    background-color: lightgray;
+}
+.close-button:hover {
+    background-color: darkgray;
+}
+.show-modal {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1.0);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}

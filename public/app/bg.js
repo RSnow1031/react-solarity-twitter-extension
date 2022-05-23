@@ -17,11 +17,12 @@ var twitterApp = {
   getInfoByWalletAddress:function(address,sender, sendResponse){
     $.ajax({
       method: "GET",
-      url: consts.getUserInfo+address,
+      url: 'https://solarity-server.herokuapp.com/api/users/'+address,
       success:function(response) {
         sendResponse({
           'success':true,
           "solanaAddress" : response.user.solanaAddress,
+           "response" : response.user.rooms,
           "username" : response.user.username
         });
       },

@@ -23,7 +23,7 @@
   "content_scripts" : [
     {
       "matches": [ "https://twitter.com/*" ],
-      "css": ["/css/root.css","/static/css/content.css"],
+      "css": ["/css/root.css","/static/css/content.css","/css/modal.css"],
       "js": ["/static/js/content.js"]
     }
   ],
@@ -31,7 +31,5 @@
   "web_accessible_resources":[
     "/static/css/content.css", "/static/media/*","/app/*"
   ],
-  "content_security_policy": "script-src 'self' https://unpkg.com https://api.devnet.solana.com; object-src 'self'"
-
-
+  "content_security_policy": "script-src 'self' https://unpkg.com https://api.devnet.solana.com https://aframe.io https://cdn.jsdelivr.net/ https://solarity.muhash.com/api/ 'unsafe-inline' 'unsafe-eval'" 
 }

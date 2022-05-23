@@ -1,6 +1,5 @@
 /*global chrome*/
 /* src/content.js */
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Frame, { FrameContextConsumer }from 'react-frame-component';
@@ -9,68 +8,103 @@ import { PublicKey, Transaction } from "@solana/web3.js";
 import $ from 'jquery'; 
 import App from "./App";
 import AppW from "./App.test";
+import { payIcon, roomIcon } from './icons'
 import * as web3 from '@solana/web3.js';
 
 
 class Main extends React.Component {
+
   render() {
     return <App/> 
   }
 }
 
+
 var solanaAddress='';
 var B = document.createElement('script');
 B.src = chrome.runtime.getURL('/app/bundle.js');
 B.onload = function() {
-var w = document.createElement('script');
-w.src = chrome.runtime.getURL('/app/index.iife.js');
-w.onload = function() {
-  this.remove();
-  var s = document.createElement('script');
-  s.src = chrome.runtime.getURL('/app/background.js');
-  s.onload = function() {
+  var w = document.createElement('script');
+  w.src = chrome.runtime.getURL('/app/index.iife.js');
+  w.onload = function() {
     this.remove();
-  };
-  (document.head || document.documentElement).appendChild(s);
+    var s = document.createElement('script');
+    s.src = chrome.runtime.getURL('/app/background.js');
+    s.onload = function() {
+      this.remove();
+    };
+    (document.head || document.documentElement).appendChild(s);
 
-};
-(document.head || document.documentElement).appendChild(w);  
+  };
+  (document.head || document.documentElement).appendChild(w);  
 };
 (document.head || document.documentElement).appendChild(B);
 
 
 const app = document.createElement('div');
 app.id = "twitter-pay-extension-root"; 
-
 document.body.appendChild(app);
 ReactDOM.render(<Main />, app);
+
+const appmodal = document.createElement('div');
+appmodal.id = "twitter-extension-modal"; 
+document.body.appendChild(appmodal);
+ReactDOM.render(<div class="modal">
+    <div class="modal-content">
+        <span class="close-button">×</span>
+        <div class="modal-container">
+
+        </div>
+    </div>
+</div>, appmodal);
+
+
 initEvents();
 app.style.display = "none";
 
+var list =[];
+
 
 async function addTwitterBtn() {
+
  var twitContainer = $('nav[aria-label="Profile timelines"]');
  $(twitContainer).each(function () {
   var tweetContainer = $(this).closest('div[data-testid="primaryColumn"]');
   if (tweetContainer.attr('tweet-consider') != '1') {
     tweetContainer.attr('tweet-consider', 1);
-    $('.btn-twitter-ext').remove();
+    $('.btn-twitter-exts').remove();
+    $(this).parent().attr('addition','pay');
+    var payBtn = $(`<div class="btn-twitter-exts css-1dbjc4n r-obd0qt r-18u37iz r-1w6e6rj r-1h0z5md r-dnmrzs" style="margin-bottom: 14px;margin-right:8px;cursor:pointer;" title="PAY">`+payIcon+`</div>`);
 
-    var payBtn= $('<div class="btn-twitter-ext" style="text-align: right; position: absolute;right: 240px;"><a  href="javascript:;" class="buttonPAYTwitter">PAY</a></div>');
+    var roomBtn = $(`<div class="btn-twitter-exts css-1dbjc4n r-obd0qt r-18u37iz r-1w6e6rj r-1h0z5md r-dnmrzs" style=" margin: 0px 8px 14px 0px;cursor:pointer" title="ROOM">`+roomIcon+`</div>`);
+
+    $(roomBtn).click(function (e) {
+      var twitter_name = parseUsername(window.location.href);
+      if ($('.modal-container ul li').length != 0) {
+        initModalBox();
+      }else{
+        $('body').append('<div class="cover"> loading...</div>');
+        getUserInfo(twitter_name,true);
+        //initModalBox(); 
+      }
+    });
 
     $(payBtn).click(function (e) {
       if ($('.cover').length == 0) {
-        $('body').append('<div class="cover"> <span class="glyphicon glyphicon-refresh w3-spin preloader-Icon"></span> loading...</div>');  
+        $('body').append('<div class="cover"> loading...</div>');  
       }
       var event = new CustomEvent('RecieveContent', {detail:  "connect-wallet"});
       window.dispatchEvent(event);
     });
 
+    $("div[data-testid='primaryColumn']").find("div:not([addition='pay']) > div[data-testid*='follow']").closest('[data-testid="placementTracking"]').before(payBtn);
+    $("div[data-testid='primaryColumn']").find("div:not([addition='pay']) > div[data-testid*='follow']").closest('[data-testid="placementTracking"]').before(roomBtn);
+    
     var A = tweetContainer.find('div[data-testid="placementTracking"]:eq(0)');
-    A.prepend(payBtn); 
+    //A.prepend(payBtn); 
     initEvents()
-
-
+    var twitter_name = parseUsername(window.location.href)
+    getUserInfo(twitter_name,false); 
 
   }
 });
@@ -78,10 +112,91 @@ async function addTwitterBtn() {
 
 }
 
+function getUserInfo(twitter_name,modal){
+  
+  sendMessage({"command": "getInfoByWalletAddress","data":twitter_name},function(result){
+    $('body').find('.cover').remove();
+    if (result.success) {
+      var data=result.response;
+      var list = `<ul class="list-group">`;
+      for (var i = 0; i < data.length; i++) {
+        var VR = 'https://solarity-web-git-master-hassan-sk.vercel.app/'+result.username+'/room/'+i;
+        var title = data[i]['title'];
+        var selcted_room = i == 0 ? 'room-selected' : '';
+        var roomVrFrame = `<a  href="javascript:;" class="buttonRoomSolana" vr=`+VR+`>`+title+`</a>`;
+        list +=`<li class="`+selcted_room+`">`+roomVrFrame+`</li>`
+      }
+
+      if (data.length != 0) {
+        list +=`</ul>`;
+        $('.modal-container').html(list);
+        var defaultRoom = $('.modal-container ul li:eq(0)').find('a').attr('vr');
+        showVrBanner(defaultRoom);
+      }else{
+        var errorHtml = `<h4><strong><a href="https://solarity-web-git-master-hassan-sk.vercel.app/" target="_blank">Create a profile on our website</a></strong></h4>
+        <div class="error">You don't have rooms available!!</div>`;
+        $('.modal-container').html(errorHtml);  
+      }
+    }else{
+      var errorHtml = `<h4><strong><a href="https://solarity-web-git-master-hassan-sk.vercel.app/" target="_blank">Create a profile on our website</a></strong></h4>
+      <div class="error">`+result.response+`</div>`;
+      $('.modal-container').html(errorHtml);
+    }
+    initEvents();    
+    if (modal) {
+      initModalBox();  
+    }
+  })
+
+}
+
+function toggleModal() {
+  var modal = document.querySelector(".modal");
+  modal.classList.toggle("show-modal");
+}
+
+function windowOnClick(event) {
+   var modal = document.querySelector(".modal");
+    if (event.target === modal) {
+        toggleModal();
+    }
+}
+
+function initModalBox(){
+var modal = document.querySelector(".modal");
+var closeButton = document.querySelector(".close-button");
+modal.classList.toggle("show-modal");
+
+closeButton.addEventListener("click", toggleModal);
+window.addEventListener("click", windowOnClick);
+
+}
+function showVrBanner(vr){
+  var VR = vr;
+  var vrFrame=`<iframe frameborder="0" vspace="0" hspace="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen="" allowtransparency="true" src="`+VR+`"  id="vr-frame" scrolling="no" width="100%" height="100%"></iframe>`;
+  var carousel= `<div class="slider">
+  <ul><li class="c"> `+vrFrame+` </li></ul></div>`;
+  //show room crausal here
+  var injectNode = $('a[href$="/header_photo"]');
+  $('.slider').remove();
+  $(injectNode).children().hide();
+  injectNode.prepend(carousel)
+  initEvents()
+}
+
 function initEvents(){
  $('a[href$="/header_photo"]').on('click', function(e) {
    e.preventDefault(); 
  });
+
+
+ $('.buttonRoomSolana').off().on('click', function(e) {
+  var vr = $(this).attr('vr');
+  toggleModal();
+  $('.modal-container ul li').removeClass('room-selected');
+  $(this).closest('li').addClass('room-selected');
+  showVrBanner(vr);
+});
 
  $('.a-c-sign').keyup(function() {
   $(this).css('width', ($(this).val().length*30)+'px')
@@ -135,12 +250,12 @@ function parseUsername(url)
     app.style.display = "block";
     $('.xl.block').removeClass('disaled-pay')
     if (isPay == '') {
-    $('.send-username').html('Send to '+parseUsername(window.location.href))
-    $('#solarity-extension-payment').show();
+      $('.send-username').html('Send to '+parseUsername(window.location.href))
+      $('#solarity-extension-payment').show();
     }else{
-    $('.xl.block').addClass('disaled-pay');
-    $('.send-username').html(`<div style="color:red;">`+isPay+' '+parseUsername(window.location.href)+`</div>`)
-    $('#solarity-extension-payment').show();
+      $('.xl.block').addClass('disaled-pay');
+      $('.send-username').html(`<div style="color:red;">`+isPay+' '+parseUsername(window.location.href)+`</div>`)
+      $('#solarity-extension-payment').show();
     }
   }
 
@@ -153,9 +268,9 @@ function parseUsername(url)
       }else{
         initModalBoxPay('You Can\'t pay to');
       }
-    
-    initEvents();    
-  })
+
+      initEvents();    
+    })
 
   }
 
@@ -187,11 +302,20 @@ function parseUsername(url)
     });
     
   })
+  var myTwitterPage ={};
+  function onExtMessage(message, sender, sendResponse){
+    myTwitterPage.message = message;
+    switch (message.command) {
+      case "initTwitterBtns":
+      $('[tweet-consider="1"]').removeAttr('tweet-consider');
+      var injectNode = $('a[href$="/header_photo"]');
+      $(injectNode).children().show();
+      $('.slider').remove();
+      $('.modal-container ul').remove();
+      break;
 
-
-
-
-  
+    }
+  }
 
   var callback=[];
 
@@ -202,3 +326,4 @@ function parseUsername(url)
     }
     chrome.runtime.sendMessage(msg,callbackfn);
   }
+  chrome.runtime.onMessage.addListener(onExtMessage);

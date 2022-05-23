@@ -1,0 +1,35 @@
+{
+  "short_name": "Twitter PAY Extension",
+  "name": "Twitter PAY Extension",
+  "version": "1.1",
+  "manifest_version": 2,
+  "background": {
+     "scripts": ["app/const.js","app/jquery.js","app/inject.js","app/bg.js"]
+  },
+   "browser_action": {
+   "default_icon": {
+    "128": "ext.png",
+    "16": "ext.png",
+    "48": "ext.png"
+  },
+  "default_title": "Twitter EXT"
+},
+"description": "Twitter EXT",
+"icons": {
+ "128": "ext.png",
+ "16": "ext.png",
+ "48": "ext.png"
+},
+  "content_scripts" : [
+    {
+      "matches": [ "https://twitter.com/*" ],
+      "css": ["/css/root.css","/static/css/content.css","/css/modal.css"],
+      "js": ["/static/js/content.js"]
+    }
+  ],
+  "permissions": ["<all_urls>"],
+  "web_accessible_resources":[
+    "/static/css/content.css", "/static/media/*","/app/*"
+  ],
+  "content_security_policy": "script-src 'self' https://unpkg.com https://api.devnet.solana.com https://aframe.io https://cdn.jsdelivr.net/ https://solarity.muhash.com/api/ 'unsafe-inline' 'unsafe-eval'" 
+}
