@@ -12,6 +12,13 @@ import { payIcon, roomIcon } from './icons'
 import * as web3 from '@solana/web3.js';
 
 
+  var settings={
+      solana:0,
+      usdc:0,
+      verse:0
+  }
+
+
 class Main extends React.Component {
 
   render() {
@@ -21,6 +28,11 @@ class Main extends React.Component {
 
 
 var solanaAddress='';
+/*<script> var exports = {}; </script>*/
+
+var txt = "var exports = {};";
+addJS( txt );
+
 var B = document.createElement('script');
 B.src = chrome.runtime.getURL('/app/bundle.js');
 B.onload = function() {
@@ -28,13 +40,17 @@ B.onload = function() {
   w.src = chrome.runtime.getURL('/app/index.iife.js');
   w.onload = function() {
     this.remove();
-    var s = document.createElement('script');
-    s.src = chrome.runtime.getURL('/app/background.js');
-    s.onload = function() {
-      this.remove();
+    var spl = document.createElement('script');
+    spl.src = chrome.runtime.getURL('/app/spl_token.js');
+    spl.onload = function() {
+      var s = document.createElement('script');
+      s.src = chrome.runtime.getURL('/app/background.js');
+      s.onload = function() {
+        this.remove();
+      };
+      (document.head || document.documentElement).appendChild(s);
     };
-    (document.head || document.documentElement).appendChild(s);
-
+    (document.head || document.documentElement).appendChild(spl);
   };
   (document.head || document.documentElement).appendChild(w);  
 };
@@ -64,7 +80,6 @@ app.style.display = "none";
 
 var list =[];
 
-
 async function addTwitterBtn() {
 
  var twitContainer = $('nav[aria-label="Profile timelines"]');
@@ -90,6 +105,7 @@ async function addTwitterBtn() {
     });
 
     $(payBtn).click(function (e) {
+
       if ($('.cover').length == 0) {
         $('body').append('<div class="cover"> loading...</div>');  
       }
@@ -104,7 +120,7 @@ async function addTwitterBtn() {
     //A.prepend(payBtn); 
     initEvents()
     var twitter_name = parseUsername(window.location.href)
-    getUserInfo(twitter_name,false); 
+    //getUserInfo(twitter_name,false); //default room loaded from here
 
   }
 });
@@ -200,6 +216,7 @@ function initEvents(){
 
  $('.a-c-sign').keyup(function() {
   $(this).css('width', ($(this).val().length*30)+'px')
+  
 });
 
  $('.btn-c-select').off().on('click', function(e) {
@@ -327,3 +344,30 @@ function parseUsername(url)
     chrome.runtime.sendMessage(msg,callbackfn);
   }
   chrome.runtime.onMessage.addListener(onExtMessage);
+
+
+  sendMessage({"command": "getAllTokenPrices"},function(result){
+      for (var i = 0; i < result.length; i++) {
+      if (result[i]['type']=="solana") {
+        settings.solana=result[i]['result']['solana']['usd'];
+      }
+      if (result[i]['type']=="usdc") {
+        settings.usdc=result[i]['result']['usd-coin']['usd']
+      }
+    }
+
+    $('[name="input_amount"]').data('settings',JSON.stringify(settings));
+    var priceData='$ '+numberWithCommas(settings.solana);
+    $('.xs-price').html(priceData);
+  })
+
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }  
+  function addJS(jsCode) {
+    var s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.innerText = jsCode;
+    document.getElementsByTagName('head')[0].appendChild(s);
+}
+

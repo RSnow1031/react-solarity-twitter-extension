@@ -12,6 +12,10 @@ const sol = chrome.runtime.getURL('static/media/SOL.svg')
 const usdc = chrome.runtime.getURL('static/media/USDC.svg')
 const verce = chrome.runtime.getURL('static/media/VERCE.svg')
 
+
+ function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+ } 
 class App extends Component {
 
 constructor() {
@@ -28,6 +32,22 @@ constructor() {
     this.setState({
       [event.target.name]: event.target.value
     });
+    
+    var currency = $('.currency-selcted-ext .sm').text();
+    var type='usdc';
+    if (currency == 'SOL') {
+     var type='solana';
+    }
+    if (currency == 'VERSE') {
+     var type='solana';
+    }
+    
+    let inputVal = event.target.value != ""?event.target.value:0;
+    let settingsS = $('[name="input_amount"]').data('settings');
+    let settings = JSON.parse(settingsS);
+    let finalP = (parseFloat(inputVal) * settings[type]).toFixed(2);
+    var priceData= '$ '+numberWithCommas(finalP);
+    $('.xs-price').html(priceData);
   }
  
 
@@ -62,15 +82,24 @@ $('.currency-selcted-ext').find('img').attr('alt',alt);
 $('.currency-selcted-ext').find('span.sm').text(alt);
 $("#second-screen").hide();
 $('#first-screen').show();
+let settingsS = $('[name="input_amount"]').data('settings');
+let settings = JSON.parse(settingsS);
+let input_val = $('[name="input_amount"]').val() != ""?$('[name="input_amount"]').val():0;
+
+$('.xs-price').show();
 if(alt == "SOL"){
-  $("#CURRENCY-USDC, #CURRENCY-VERSE").hide();
-  $("#CURRENCY-SOL").show();
+  $("#CURRENCY-SIGN").text('SOL');
+ let finalP = (parseFloat(input_val) * settings.solana).toFixed(2);
+ var priceData= '$ '+numberWithCommas(finalP);
+ $('.xs-price').html(priceData);
 }else if(alt == "USDC"){
-  $("#CURRENCY-SOL, #CURRENCY-VERSE").hide();
-  $("#CURRENCY-USDC").show();
+  $("#CURRENCY-SIGN").text('USDC');
+  let finalP = (parseFloat(input_val) * settings.usdc).toFixed(2);
+  var priceData= '$ '+numberWithCommas(finalP);
+  $('.xs-price').html(priceData);
 }else{
-  $("#CURRENCY-SOL, #CURRENCY-USDC").hide();
-  $("#CURRENCY-VERSE").show();
+  $("#CURRENCY-SIGN").text('VERSE');
+  $('.xs-price').hide();
 }
 
 }
@@ -108,17 +137,16 @@ return (
             <p className="p-txt md bold send-username"></p>
             <div className="a-c-1">
               <div className="a-c-2">
-              <strong className="a-c-dollar" id="CURRENCY-USDC">$</strong>
               <input className="a-c-sign"
               name="input_amount"
               type="text"
+              autocomplete="off"
               value={this.state.input_amount}
               onChange={this.onInputchange}
               />
-              <strong className="a-c-dollar" id="CURRENCY-SOL"> SOL</strong>
-              <strong className="a-c-dollar" id="CURRENCY-VERSE"> VERSE</strong>
+              <strong className="a-c-dollar" id="CURRENCY-SIGN">SOL</strong>
               </div>
-
+              <p class="xs-price"></p>
               </div>
               <div className="c-footer-btns">
                 <button className="xl block" ext-type="solarity" id="tip-continue" onClick={this.btnTipContinue} >Continue</button>
@@ -139,8 +167,8 @@ return (
               </svg>
             </button>
             <button className="btn-c-select btn-c-bg amount md">
-              <img src={verce} alt="VERCE" />
-              <span className="sm bold">VERCE</span>
+              <img src={verce} alt="VERSE" />
+              <span className="sm bold">VERSE</span>
             </button>
             <button className="btn-c-select btn-c-bg amount md">
               <img src={usdc} alt="USDC" />

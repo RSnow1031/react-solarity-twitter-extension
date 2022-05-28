@@ -18,6 +18,8 @@
     "@types/react": "^16.9.53",
     "@types/react-dom": "^16.9.8",
     "@fancyapps/fancybox": "3.5.2",
+    "@solana/buffer-layout" :"4.0.0",
+    "@solana/buffer-layout-utils":"0.2.0",
     "autoprefixer": "^9.8.5",
     "case-sensitive-paths-webpack-plugin": "^2.3.0",
     "chalk": "^4.1.0",
