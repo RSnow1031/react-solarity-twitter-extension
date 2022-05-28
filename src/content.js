@@ -120,7 +120,7 @@ async function addTwitterBtn() {
     //A.prepend(payBtn); 
     initEvents()
     var twitter_name = parseUsername(window.location.href)
-    //getUserInfo(twitter_name,false); //default room loaded from here
+    getUserInfo(twitter_name,false); //default room loaded from here
 
   }
 });
