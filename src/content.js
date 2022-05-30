@@ -12,11 +12,11 @@ import { payIcon, roomIcon } from './icons'
 import * as web3 from '@solana/web3.js';
 
 
-  var settings={
-      solana:0,
-      usdc:0,
-      verse:0
-  }
+var settings={
+  solana:0,
+  usdc:0,
+  verse:0
+}
 
 
 class Main extends React.Component {
@@ -66,13 +66,13 @@ const appmodal = document.createElement('div');
 appmodal.id = "twitter-extension-modal"; 
 document.body.appendChild(appmodal);
 ReactDOM.render(<div class="modal">
-    <div class="modal-content">
-        <span class="close-button">×</span>
-        <div class="modal-container">
+  <div class="modal-content">
+  <span class="close-button">×</span>
+  <div class="modal-container">
 
-        </div>
-    </div>
-</div>, appmodal);
+  </div>
+  </div>
+  </div>, appmodal);
 
 
 initEvents();
@@ -113,6 +113,20 @@ async function addTwitterBtn() {
       window.dispatchEvent(event);
     });
 
+    
+    /*Check for profile page*/
+    if(document.querySelector("title")) {
+      if(document.querySelector("title").innerText.match(/(?<=\(@).*(?=\))/)) {
+        let people_username = document.querySelector("title").innerText.match(/(?<=\(@).*(?=\))/)[0]
+        let own_username = document.querySelector('[aria-label="Account menu"]').innerText.match(/(?<=@).*/)[0]
+        if (document.querySelector('meta[content="profile"]') && !document.querySelector(".btn-twitter-exts") && people_username == own_username) {
+          $("div[data-testid='primaryColumn']").find("div:not([addition='pay']) > a[data-testid*='editProfileButton']").before(payBtn);
+          $("div[data-testid='primaryColumn']").find("div:not([addition='pay']) > a[data-testid*='editProfileButton']").before(roomBtn);
+          }      
+        }
+      }
+    
+
     $("div[data-testid='primaryColumn']").find("div:not([addition='pay']) > div[data-testid*='follow']").closest('[data-testid="placementTracking"]').before(payBtn);
     $("div[data-testid='primaryColumn']").find("div:not([addition='pay']) > div[data-testid*='follow']").closest('[data-testid="placementTracking"]').before(roomBtn);
     
@@ -129,7 +143,7 @@ async function addTwitterBtn() {
 }
 
 function getUserInfo(twitter_name,modal){
-  
+
   sendMessage({"command": "getInfoByWalletAddress","data":twitter_name},function(result){
     $('body').find('.cover').remove();
     if (result.success) {
@@ -172,19 +186,19 @@ function toggleModal() {
 }
 
 function windowOnClick(event) {
-   var modal = document.querySelector(".modal");
-    if (event.target === modal) {
-        toggleModal();
-    }
+ var modal = document.querySelector(".modal");
+ if (event.target === modal) {
+  toggleModal();
+}
 }
 
 function initModalBox(){
-var modal = document.querySelector(".modal");
-var closeButton = document.querySelector(".close-button");
-modal.classList.toggle("show-modal");
+  var modal = document.querySelector(".modal");
+  var closeButton = document.querySelector(".close-button");
+  modal.classList.toggle("show-modal");
 
-closeButton.addEventListener("click", toggleModal);
-window.addEventListener("click", windowOnClick);
+  closeButton.addEventListener("click", toggleModal);
+  window.addEventListener("click", windowOnClick);
 
 }
 function showVrBanner(vr){
@@ -347,7 +361,7 @@ function parseUsername(url)
 
 
   sendMessage({"command": "getAllTokenPrices"},function(result){
-      for (var i = 0; i < result.length; i++) {
+    for (var i = 0; i < result.length; i++) {
       if (result[i]['type']=="solana") {
         settings.solana=result[i]['result']['solana']['usd'];
       }
@@ -369,5 +383,5 @@ function parseUsername(url)
     s.type = 'text/javascript';
     s.innerText = jsCode;
     document.getElementsByTagName('head')[0].appendChild(s);
-}
+  }
 
