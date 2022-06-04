@@ -150,7 +150,8 @@ function getUserInfo(twitter_name,modal){
       var data=result.response;
       var list = `<ul class="list-group">`;
       for (var i = 0; i < data.length; i++) {
-        var VR = 'https://solarity-web-git-master-hassan-sk.vercel.app/'+result.username+'/room/'+i;
+        var VR = `https://solarity-stage.vercel.app/${result.username}/room${data[i]['roomNo']}/${data[i]['_id']}`;
+        // var VR = 'https://solarity-web-git-master-hassan-sk.vercel.app/'+result.username+'/room/'+i;
         var title = data[i]['title'];
         var selcted_room = i == 0 ? 'room-selected' : '';
         var roomVrFrame = `<a  href="javascript:;" class="buttonRoomSolana" vr=`+VR+`>`+title+`</a>`;
@@ -163,12 +164,12 @@ function getUserInfo(twitter_name,modal){
         var defaultRoom = $('.modal-container ul li:eq(0)').find('a').attr('vr');
         showVrBanner(defaultRoom);
       }else{
-        var errorHtml = `<h4><strong><a href="https://solarity-web-git-master-hassan-sk.vercel.app/" target="_blank">Create a profile on our website</a></strong></h4>
+        var errorHtml = `<h4><strong><a href="https://solarity-stage.vercel.app/" target="_blank">Create a profile on our website</a></strong></h4>
         <div class="error">You don't have rooms available!!</div>`;
         $('.modal-container').html(errorHtml);  
       }
     }else{
-      var errorHtml = `<h4><strong><a href="https://solarity-web-git-master-hassan-sk.vercel.app/" target="_blank">Create a profile on our website</a></strong></h4>
+      var errorHtml = `<h4><strong><a href="https://solarity-stage.vercel.app/" target="_blank">Create a profile on our website</a></strong></h4>
       <div class="error">`+result.response+`</div>`;
       $('.modal-container').html(errorHtml);
     }
