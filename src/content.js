@@ -150,9 +150,9 @@ function getUserInfo(twitter_name,modal){
       var data=result.response;
       var list = `<ul class="list-group">`;
       for (var i = 0; i < data.length; i++) {
-        var VR = `https://solarity-stage.vercel.app/${result.username}/room${data[i]['roomNo']}/${data[i]['_id']}`;
-        // var VR = 'https://solarity-web-git-master-hassan-sk.vercel.app/'+result.username+'/room/'+i;
         var title = data[i]['title'];
+        var roomId = data[i]['_id'];
+        var VR = 'https://solarity-stage.vercel.app/'+result.username+'/room'+i+'/'+roomId;
         var selcted_room = i == 0 ? 'room-selected' : '';
         var roomVrFrame = `<a  href="javascript:;" class="buttonRoomSolana" vr=`+VR+`>`+title+`</a>`;
         list +=`<li class="`+selcted_room+`">`+roomVrFrame+`</li>`
